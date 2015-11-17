@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Clock</string>
+    <string name="addAlarm">增加一个闹钟</string>
+    <string name="play">Playing music</string>
+    <string name="start">启动</string>
+    <string name="pause">暂停</string>
+    <string name="resume">继续</string>
+    <string name="reset">重置</string>
+    <string name="分隔符">:</string>
+    <string name="初始值">00</string>
+    <string name="Lap">标记</string>
+    <string name="毫秒分割">.</string>
+    <string name="alarm">够钟啦!!!</string>
+</resources>
