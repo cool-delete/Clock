@@ -15,4 +15,5 @@ public class StopWatchView extends LinearLayout {
     public StopWatchView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+
 }

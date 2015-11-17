@@ -17,6 +17,7 @@ public class AlarmPlay extends Activity {
         setContentView(R.layout.alarm_play);
         playMusic();
         StopAlarm();
+        // TODO: 2015/11/18 好单调 在xml里面增加按钮或滑动
     }
 
     private void StopAlarm() {
