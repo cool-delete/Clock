@@ -10,6 +10,7 @@ public class MainActivity extends AppCompatActivity {
     TabHost tabHost;
     public static String TAG = "CLOCK";
     private StopWatchView stopWatchView;
+    private TimerView timerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,11 +25,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         stopWatchView = (StopWatchView) findViewById(R.id.tabStopWatch);
+        timerView = (TimerView) findViewById(R.id.tabTimer);
     }
 
     @Override
     protected void onDestroy() {
         stopWatchView.onDestroy();
+        timerView.stopTask();
         Log.d(TAG, "onDestroy() returned ");
         super.onDestroy();
     }

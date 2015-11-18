@@ -26,8 +26,7 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
     int MSec, Sec, Min, Hour;
     Timer timer = new Timer();
     TimerTask timerTask = null;
-
-
+    Handler handler;
 
     public StopWatchView(Context context) {
         super(context);
@@ -43,6 +42,7 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         initCom();
     }
 
+
     private void initCom() {
         for (int i = 0; i < btnId.length; i++) {
             btns[i] = (Button) findViewById(btnId[i]);
@@ -53,7 +53,6 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         }
 
     }
-
 
     @Override
     public void onClick(View v) {
@@ -89,9 +88,20 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         }
 
 
-        timer.schedule(timerTask, 1, 1);
+        timer.schedule(timerTask, 10, 10);
         handler.sendEmptyMessage(0);
     }
+
+    private void calculate() {//内部计算数值
+
+
+        Time++;
+        MSec = Time % 100;
+        Sec = Time / 100 % 60;
+        Min = Time / 100 / 60 % 60;
+        Hour = Time / 100 / 60 / 60;
+    }
+
 
     private void freshTime() {//外部显示数值
 
@@ -101,17 +111,6 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         tvs[0].setText(String.format("%02d", Hour));
 
     }
-
-
-    private void calculate() {//内部计算数值
-        Time++;
-        MSec = Time % 1000;
-        Sec = Time / 1000 % 60;
-        Min = Time / 1000 / 60 % 60;
-        Hour = Time / 1000 / 60 / 60;
-    }
-
-    Handler handler;
 
     {
         handler = new Handler() {

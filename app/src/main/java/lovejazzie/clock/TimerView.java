@@ -28,7 +28,6 @@ public class TimerView extends LinearLayout implements TextWatcher, View.OnClick
     private int[] btnId = {R.id.btnStart, R.id.btnPause, R.id.btnResume, R.id.btnReset};
     private EditText[] editTexts = {etHour, etMin, etSec};
     private int[] etId = {R.id.et_House, R.id.et_Min, R.id.et_Sec};
-    private int allTimes;
     private Timer timer = new Timer();
     private TimerTask timerTask = null;
     private static final int WHAT_TIME_UP = 1;
@@ -52,13 +51,13 @@ public class TimerView extends LinearLayout implements TextWatcher, View.OnClick
     private void initAll() {
 
 
-        for (int i = 0; i < btnId.length; i++) {
+        for (int i = 0; i < btns.length; i++) {
             btns[i] = (Button) findViewById(btnId[i]);
         }
 
 
-        for (int i = 0; i < btns.length; i++) {
-            btns[i].setOnClickListener(this);
+        for (Button btn : btns) {
+            btn.setOnClickListener(this);
         }
         changeBtnStatus(0, false);
         for (int i = 0; i < etId.length; i++) {
@@ -200,11 +199,11 @@ public class TimerView extends LinearLayout implements TextWatcher, View.OnClick
     }
 
     private void resetTimer() {
-        for (int i = 0; i < editTexts.length; i++) {
-            editTexts[i].setEnabled(true);//解锁输入框
+        for (EditText editText : editTexts) {
+            editText.setEnabled(true);//解锁输入框
             Log.d(TAG, "解锁输入框");
-            editTexts[i].setText(R.string.初始值);
-            editTexts[i].setCursorVisible(true);
+            editText.setText(R.string.初始值);
+            editText.setCursorVisible(true);
         }
     }
 
@@ -281,10 +280,11 @@ public class TimerView extends LinearLayout implements TextWatcher, View.OnClick
         new AlertDialog.Builder(getContext()).setTitle("倒数完了~~").setMessage("这个是什么消息").setNegativeButton("ok", null).show();
     }
 
-    private void stopTask() {
+    public void stopTask() {
         if (timerTask != null) {
             timerTask.cancel();
             timerTask = null;
+            handler.removeMessages(WHAT_TIME_UP);
 
         }
     }
