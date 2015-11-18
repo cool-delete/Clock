@@ -8,6 +8,7 @@ public class MainActivity extends AppCompatActivity {
 
     TabHost tabHost;
     public static String TAG = "CLOCK";
+    private StopWatchView stopWatchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,5 +20,11 @@ public class MainActivity extends AppCompatActivity {
         tabHost.addTab(tabHost.newTabSpec("tabAlarm").setIndicator("闹钟").setContent(R.id.tabAlarm));
         tabHost.addTab(tabHost.newTabSpec("tabTimer").setIndicator("计时器").setContent(R.id.tabTimer));
         tabHost.addTab(tabHost.newTabSpec("tabStopWatch").setIndicator("秒表").setContent(R.id.tabStopWatch));
+    }
+
+    @Override
+    protected void onDestroy() {
+        //        stopWatchView.onDestroy();
+        super.onDestroy();
     }
 }

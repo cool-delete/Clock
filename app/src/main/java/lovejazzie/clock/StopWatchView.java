@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Created by Administrator on 2015/11/16.
  */
@@ -16,10 +19,13 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
     Button btnStart, btnPause, btnResume, btnLap, btnReset;
     Button[] btns = {btnStart, btnPause, btnResume, btnLap, btnReset};
     int[] btnId = {R.id.btnSWStart, R.id.btnSWPause, R.id.btnSWResume, R.id.btnSWLap, R.id.btnSWReset};
-    TextView Hour, Min, Sec, MSec;
-    TextView[] tvs = {Hour, Min, Sec, MSec};
+    TextView tvHour, tvMin, tvSec, tvMSec;
+    TextView[] tvs = {tvHour, tvMin, tvSec, tvMSec};
     int[] tvId = {R.id.timeHour, R.id.timeMin, R.id.timeSec, R.id.MinSec};
     int Time = 0;
+    int MSec, Sec, Min, Hour;
+    Timer timer = new Timer();
+    TimerTask timerTask = null;
 
 
 
@@ -71,8 +77,20 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
     }
 
     private void startStopWatch() {
+
+
+        if (timerTask == null) {
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    calculate();
+                }
+            };
+        }
+
+
+        timer.schedule(timerTask, 1, 1);
         handler.sendEmptyMessage(0);
-        calculate();
     }
 
     private void freshTime() {//外部显示数值
@@ -81,22 +99,30 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         tvs[2].setText(String.format("%02d", Sec));
         tvs[1].setText(String.format("%02d", Min));
         tvs[0].setText(String.format("%02d", Hour));
+
     }
+
 
     private void calculate() {//内部计算数值
         Time++;
-        int MSec = Time % 1000;
-        int Sec = Time / 1000 % 60;
-        int Min = Time / 1000 / 60 % 60;
-        int Hour = Time / 1000 / 60 / 60;
+        MSec = Time % 1000;
+        Sec = Time / 1000 % 60;
+        Min = Time / 1000 / 60 % 60;
+        Hour = Time / 1000 / 60 / 60;
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            freshTime();
-            sendEmptyMessageDelayed(0, 1);
-        }
-    };
+    Handler handler;
+
+    {
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                freshTime();
+                sendEmptyMessageDelayed(0, 50);
+            }
+        };
+    }
+
+
 }
