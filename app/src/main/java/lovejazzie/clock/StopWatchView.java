@@ -124,5 +124,8 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         };
     }
 
-
+    public void onDestroy() {
+        handler.removeMessages(0);
+        timer.cancel();
+    }
 }
