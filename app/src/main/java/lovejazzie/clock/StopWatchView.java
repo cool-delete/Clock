@@ -120,6 +120,7 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
             case 0:
                 for (int k = 1; k < btns.length; k++) {
                     btns[k].setVisibility(GONE);
+
                 }
                 break;
             case 1:
