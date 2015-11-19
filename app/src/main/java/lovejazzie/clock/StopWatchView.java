@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ import java.util.TimerTask;
  * Created by Administrator on 2015/11/16.
  */
 public class StopWatchView extends LinearLayout implements View.OnClickListener {
+    private static final String TAG = MainActivity.TAG;
     Button btnStart, btnPause, btnResume, btnLap, btnReset;
     Button[] btns = {btnStart, btnPause, btnResume, btnLap, btnReset};
     int[] btnId = {R.id.btnSWStart, R.id.btnSWPause, R.id.btnSWResume, R.id.btnSWLap, R.id.btnSWReset};
@@ -25,6 +27,7 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
     int Time = 0;
     int MSec, Sec, Min, Hour;
     Timer timer = new Timer();
+    TimerTask showtime = null;
     TimerTask timerTask = null;
     Handler handler;
 
@@ -51,17 +54,40 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         for (int i = 0; i < tvs.length; i++) {
             tvs[i] = (TextView) findViewById(tvId[i]);
         }
+        initTimerTask();
 
+    }
+
+    private void initTimerTask() {
+        if (timerTask == null) {
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "目前有" + Time + "个10");
+                    Time++;
+                }
+            };
+        }
+        if (showtime == null) {
+            showtime = new TimerTask() {
+                @Override
+                public void run() {
+                    handler.sendEmptyMessage(0);
+
+                }
+            };
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSWStart:
+                initTimerTask();
                 startStopWatch();
                 break;
             case R.id.btnSWPause:
-
+                onDestroy();
                 break;
             case R.id.btnSWResume:
 
@@ -78,36 +104,23 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
     private void startStopWatch() {
 
 
-        if (timerTask == null) {
-            timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    calculate();
-                }
-            };
-        }
 
 
         timer.schedule(timerTask, 10, 10);
-        handler.sendEmptyMessage(0);
-    }
+        timer.schedule(showtime, 200, 200);
 
-    private void calculate() {//内部计算数值
-
-
-        Time++;
-        MSec = Time % 100;
-        Sec = Time / 100 % 60;
-        Min = Time / 100 / 60 % 60;
-        Hour = Time / 100 / 60 / 60;
     }
 
 
     private void freshTime() {//外部显示数值
-
-        tvs[3].setText(String.format("%03d", MSec));
+        MSec = Time % 100;
+        tvs[3].setText(String.format("%02d", MSec));
+        Log.d(TAG, "目前显示毫秒数应该是" + Time % 100 + ">>>>>>>>>>>");
+        Sec = Time / 100 % 60;
         tvs[2].setText(String.format("%02d", Sec));
+        Min = Time / 100 / 60 % 60;
         tvs[1].setText(String.format("%02d", Min));
+        Hour = Time / 100 / 60 / 60;
         tvs[0].setText(String.format("%02d", Hour));
 
     }
@@ -118,13 +131,17 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 freshTime();
-                sendEmptyMessageDelayed(0, 50);
             }
         };
     }
 
     public void onDestroy() {
         handler.removeMessages(0);
-        timer.cancel();
+        if (showtime != null) {
+            showtime.cancel();
+            timerTask.cancel();
+            showtime = null;
+            timerTask = null;
+        }
     }
 }
