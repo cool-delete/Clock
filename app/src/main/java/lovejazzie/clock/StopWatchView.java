@@ -4,10 +4,11 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -18,18 +19,19 @@ import java.util.TimerTask;
  */
 public class StopWatchView extends LinearLayout implements View.OnClickListener {
     private static final String TAG = MainActivity.TAG;
-    Button btnStart, btnPause, btnResume, btnLap, btnReset;
-    Button[] btns = {btnStart, btnPause, btnResume, btnLap, btnReset};
-    int[] btnId = {R.id.btnSWStart, R.id.btnSWPause, R.id.btnSWResume, R.id.btnSWLap, R.id.btnSWReset};
-    TextView tvHour, tvMin, tvSec, tvMSec;
-    TextView[] tvs = {tvHour, tvMin, tvSec, tvMSec};
-    int[] tvId = {R.id.timeHour, R.id.timeMin, R.id.timeSec, R.id.MinSec};
-    int Time = 0;
-    int MSec, Sec, Min, Hour;
-    Timer timer = new Timer();
-    TimerTask showtime = null;
-    TimerTask timerTask = null;
-    Handler handler;
+    private Button btnStart, btnPause, btnResume, btnLap, btnReset;
+    private Button[] btns = {btnStart, btnPause, btnResume, btnLap, btnReset};
+    private int[] btnId = {R.id.btnSWStart, R.id.btnSWPause, R.id.btnSWResume, R.id.btnSWLap, R.id.btnSWReset};
+    private TextView tvHour, tvMin, tvSec, tvMSec;
+    private TextView[] tvs = {tvHour, tvMin, tvSec, tvMSec};
+    private int[] tvId = {R.id.timeHour, R.id.timeMin, R.id.timeSec, R.id.MinSec};
+    private int Time = 0;
+    private int MSec, Sec, Min, Hour;
+    private Timer timer = new Timer();
+    private TimerTask showtime = null;
+    private TimerTask timerTask = null;
+    private Handler handler;
+    private ArrayAdapter<String> myAdapter;
 
     public StopWatchView(Context context) {
         super(context);
@@ -43,6 +45,7 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
     protected void onFinishInflate() {
         super.onFinishInflate();
         initCom();
+        changBtnStatus(0);
     }
 
 
@@ -54,6 +57,9 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
         for (int i = 0; i < tvs.length; i++) {
             tvs[i] = (TextView) findViewById(tvId[i]);
         }
+        ListView listView = (ListView) findViewById(R.id.lvWatchTimeList);
+        myAdapter = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item);
+        listView.setAdapter(myAdapter);
         initTimerTask();
 
     }
@@ -63,7 +69,6 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "目前有" + Time + "个10");
                     Time++;
                 }
             };
@@ -73,7 +78,6 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
                 @Override
                 public void run() {
                     handler.sendEmptyMessage(0);
-
                 }
             };
         }
@@ -85,37 +89,75 @@ public class StopWatchView extends LinearLayout implements View.OnClickListener 
             case R.id.btnSWStart:
                 initTimerTask();
                 startStopWatch();
+                changBtnStatus(1);
                 break;
             case R.id.btnSWPause:
                 onDestroy();
+                changBtnStatus(2);
                 break;
             case R.id.btnSWResume:
-
+                initTimerTask();
+                startStopWatch();
+                changBtnStatus(3);
                 break;
             case R.id.btnSWLap:
+                freshTime();
+                myAdapter.insert(String.format("%02d:%02d:%02d.%02d", Hour, Min, Sec, MSec), 0);//放到最上面
 
                 break;
             case R.id.btnSWReset:
-
+                myAdapter.clear();
+                for (TextView tv : tvs) {
+                    tv.setText(R.string.初始值);
+                }
+                changBtnStatus(0);
                 break;
         }
     }
 
+    private void changBtnStatus(int i) {
+        switch (i) {
+            case 0:
+                for (int k = 1; k < btns.length; k++) {
+                    btns[k].setVisibility(GONE);
+                }
+                break;
+            case 1:
+                btns[0].setVisibility(GONE);
+                btns[1].setVisibility(VISIBLE);
+                btns[3].setVisibility(VISIBLE);
+                break;
+            case 2:
+                btns[1].setVisibility(GONE);
+                btns[3].setVisibility(GONE);
+                btns[2].setVisibility(VISIBLE);
+                btns[4].setVisibility(VISIBLE);
+                break;
+            case 3:
+                btns[1].setVisibility(VISIBLE);
+                btns[3].setVisibility(VISIBLE);
+                btns[4].setVisibility(GONE);
+                btns[2].setVisibility(GONE);
+                break;
+
+        }
+    }
+
     private void startStopWatch() {
-
-
-
-
         timer.schedule(timerTask, 10, 10);
         timer.schedule(showtime, 200, 200);
 
     }
-
+/* 分别计时
+ * 按下lap按钮重新计时
+ * 在下面的list的右边显示
+ * 同时左边显示那个最快
+ * 那个最慢
+ * */
 
     private void freshTime() {//外部显示数值
         MSec = Time % 100;
         tvs[3].setText(String.format("%02d", MSec));
-        Log.d(TAG, "目前显示毫秒数应该是" + Time % 100 + ">>>>>>>>>>>");
         Sec = Time / 100 % 60;
         tvs[2].setText(String.format("%02d", Sec));
         Min = Time / 100 / 60 % 60;
